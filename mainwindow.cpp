@@ -27,7 +27,31 @@ void MainWindow::on_goButton_clicked()
     QNetworkRequest request(QUrl( ui->urlLineEdit->text()));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    networkManager->get(request);
+    QNetworkReply* m_reply = networkManager->get(request);
+
+    /* Set timeout */
+    QTimer timer;
+    timer.setSingleShot(true);
+
+    QEventLoop loop;
+    connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+    connect(m_reply, SIGNAL(finished()),&loop, SLOT(quit()));
+
+    timer.start(3000);   // 3 secs. timeout
+    loop.exec();
+
+
+    if(timer.isActive()) {
+        timer.stop();
+       // ui->logTextEdit->append("Get Response ... ");
+    } else {
+
+       ui->logTextEdit->append("TIME out Error ..."+ui->urlLineEdit->text()+" is not responding");
+       m_reply->abort();
+
+    }
+
+
 
 }
 
@@ -35,11 +59,10 @@ void MainWindow::onResult(QNetworkReply* reply)
 {
 
     if (reply->error()) {
-        ui->logTextEdit->append("Error ... ");
 
         QString reason = reply->attribute( QNetworkRequest::HttpReasonPhraseAttribute ).toString();
 
-        ui->logTextEdit->append(reason);
+        ui->logTextEdit->append("Error ... reason["+reason+"]");
 
         return;
     }
