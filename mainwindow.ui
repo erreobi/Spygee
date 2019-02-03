@@ -43,11 +43,11 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>9</x>
-      <y>9</y>
+      <x>10</x>
+      <y>10</y>
       <width>911</width>
       <height>25</height>
      </rect>
@@ -64,6 +64,13 @@
       <widget class="QLineEdit" name="urlLineEdit">
        <property name="text">
         <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Reset settings</string>
        </property>
       </widget>
      </item>

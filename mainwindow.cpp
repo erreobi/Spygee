@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "setupconnection.h"
+#include "constants.h"
 #include <QtNetwork>
 #include <QStandardItemModel>
 
@@ -16,16 +18,51 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::newSettings(){
+
+    QSettings settings;
+    m_sUsername  = settings.value(Constants::USERNAME, "").toString();
+    m_sPassword  = settings.value(Constants::PASSWORD, "").toString();
+    m_sApigeeUrl = settings.value(Constants::APIURL,   "").toString();
+
+    ui->urlLineEdit->setText(m_sApigeeUrl);
+
+}
+
+void MainWindow::showEvent( QShowEvent* event ) {
+    QWidget::showEvent( event );
+
+    QSettings settings;
+    if (settings.value(Constants::USERNAME, "") == "")
+    {
+        m_qSetupDialog = new SetupConnection(this);
+        m_qSetupDialog->setModal(true);
+        m_qSetupDialog->show();
+    }
+
+    m_sUsername  = settings.value(Constants::USERNAME, "").toString();
+    m_sPassword  = settings.value(Constants::PASSWORD, "").toString();
+    m_sApigeeUrl = settings.value(Constants::APIURL,   "").toString();
+
+    ui->urlLineEdit->setText(m_sApigeeUrl);
+
+
+    ui->logTextEdit->append("Found Setting at "+settings.fileName());
+
+}
+
 void MainWindow::on_goButton_clicked()
 {
     ui->logTextEdit->append("START ... ");
 
     QNetworkAccessManager *networkManager = new QNetworkAccessManager (this);
-    connect(networkManager, &QNetworkAccessManager::finished,
-            this, &MainWindow::onResult);
+    connect(networkManager, &QNetworkAccessManager::finished,this, &MainWindow::onResult);
 
     QNetworkRequest request(QUrl( ui->urlLineEdit->text()));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    request.setRawHeader("Authorization", "Basic "+(m_sUsername+":"+m_sPassword).toLocal8Bit().toBase64());
+
 
     QNetworkReply* m_reply = networkManager->get(request);
 
@@ -37,21 +74,19 @@ void MainWindow::on_goButton_clicked()
     connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
     connect(m_reply, SIGNAL(finished()),&loop, SLOT(quit()));
 
-    timer.start(3000);   // 3 secs. timeout
+    timer.start(Constants::TIMEOUT);
     loop.exec();
 
 
     if(timer.isActive()) {
         timer.stop();
-       // ui->logTextEdit->append("Get Response ... ");
+        // ui->logTextEdit->append("Get Response ... ");
     } else {
 
-       ui->logTextEdit->append("TIME out Error ..."+ui->urlLineEdit->text()+" is not responding");
-       m_reply->abort();
+        ui->logTextEdit->append("TIME out Error ..."+ui->urlLineEdit->text()+" is not responding");
+        m_reply->abort();
 
     }
-
-
 
 }
 
@@ -66,7 +101,6 @@ void MainWindow::onResult(QNetworkReply* reply)
 
         return;
     }
-
 
     /* parse Json */
     QStringList propertyNames;
@@ -84,12 +118,16 @@ void MainWindow::onResult(QNetworkReply* reply)
         rootNode->appendRow(new QStandardItem(value.toString()));
     }
 
-//    connect(selectionModel, SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
-//               this, SLOT(selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
-
     ui->apiTreeView->setModel(model);
 
     ui->logTextEdit->append(strReply);
 
 }
 
+
+void MainWindow::on_pushButton_clicked()
+{
+    m_qSetupDialog = new SetupConnection(this);
+    m_qSetupDialog->setModal(true);
+    m_qSetupDialog->show();
+}
