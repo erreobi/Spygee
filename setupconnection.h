@@ -18,10 +18,10 @@ public:
     ~SetupConnection();
 
 public slots:
-    void on_buttonBox_clicked(QAbstractButton *button);
+    void on_buttonSaveButton_clicked(QAbstractButton *button);
 
 private slots:
-    void on_pushButton_clicked();
+    void on_pushClearButton_clicked();
 
 private:
     Ui::SetupConnection *ui;

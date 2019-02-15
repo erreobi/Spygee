@@ -11,11 +11,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    m_qSetupDialog = new SetupConnection(this);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete  m_qSetupDialog;
 }
 
 void MainWindow::newSettings(){
@@ -35,7 +37,7 @@ void MainWindow::showEvent( QShowEvent* event ) {
     QSettings settings;
     if (settings.value(Constants::USERNAME, "") == "")
     {
-        m_qSetupDialog = new SetupConnection(this);
+
         m_qSetupDialog->setModal(true);
         m_qSetupDialog->show();
     }
