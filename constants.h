@@ -9,6 +9,8 @@ class Constants
     static const QString USERNAME;
     static const QString PASSWORD;
     static const QString APIURL;
+    static const QString ENV;
+    static const QString ORG;
 
     static const int TIMEOUT;
 };

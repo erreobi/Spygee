@@ -28,16 +28,19 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     setupconnection.cpp \
-    constants.cpp
+    constants.cpp \
+    loadingdialog.cpp
 
 HEADERS += \
         mainwindow.h \
     setupconnection.h \
-    constants.h
+    constants.h \
+    loadingdialog.h
 
 FORMS += \
         mainwindow.ui \
-    setupconnection.ui
+    setupconnection.ui \
+    loadingdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
