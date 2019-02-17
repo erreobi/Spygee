@@ -109,15 +109,21 @@ void MainWindow::onResult(QNetworkReply* reply)
     QStringList propertyKeys;
     QString strReply = (QString)reply->readAll();
     QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-    QJsonArray jsonArray = jsonResponse.array();
+    QJsonObject jsonObjAPIList = jsonResponse.object();
+    QJsonArray jsonArray = jsonObjAPIList.take("aPIProxy").toArray();
 
     /* Buil QTree */
     QStandardItemModel *model = new QStandardItemModel() ;
     QStandardItem *rootNode =  model->invisibleRootItem();
     rootNode->setText("API List");
 
+
     foreach (const QJsonValue & value, jsonArray) {
-        rootNode->appendRow(new QStandardItem(value.toString()));
+
+        QJsonObject singleApigJsonObj = value.toObject();
+
+
+        rootNode->appendRow(new QStandardItem(singleApigJsonObj.take("name").toString()));
     }
 
     ui->apiTreeView->setModel(model);
