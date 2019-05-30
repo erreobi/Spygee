@@ -29,13 +29,15 @@ SOURCES += \
         mainwindow.cpp \
     setupconnection.cpp \
     constants.cpp \
-    loadingdialog.cpp
+    loadingdialog.cpp \
+    apigeeedge.cpp
 
 HEADERS += \
         mainwindow.h \
     setupconnection.h \
     constants.h \
-    loadingdialog.h
+    loadingdialog.h \
+    apigeeedge.h
 
 FORMS += \
         mainwindow.ui \
@@ -46,3 +48,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    Notes.txt
