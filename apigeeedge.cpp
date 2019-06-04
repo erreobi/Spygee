@@ -9,16 +9,37 @@ ApigeeEdge::ApigeeEdge(QString username,
                        QString environment,
                        QString organization)
 {
+    this->setApigeeEdge(username,
+                        password,
+                        apigeeUrl,
+                        environment,
+                        organization);
+}
+
+void ApigeeEdge::setApigeeEdge( QString username,
+                    QString password,
+                    QString apigeeUrl,
+                    QString environment,
+                    QString organization)
+{
     this->m_sAuthBasic = "Basic "+(username+":"+password).toLocal8Bit().toBase64();
     this->m_sApigeeUrl = apigeeUrl+"/v1/o/"+organization+"/e/"+environment;
 }
 
-void ApigeeEdge::httpCall(QString sUrl, const QObject *receiver, const char *method)
+
+
+QString ApigeeEdge::getApigeeUrl(){
+    return this->m_sApigeeUrl;
+}
+
+void ApigeeEdge::getApis()
 {
     QNetworkAccessManager *networkManager = new QNetworkAccessManager (this);
-    connect(networkManager, &QNetworkAccessManager::finished,receiver, method);
+    connect(networkManager, &QNetworkAccessManager::finished,this, &ApigeeEdge::onResultGetApis);
 
-    QUrl url = QUrl(sUrl);
+    QString getApigURL=""+m_sApigeeUrl+"/apis";
+
+    QUrl url = QUrl(getApigURL);
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -42,11 +63,33 @@ void ApigeeEdge::httpCall(QString sUrl, const QObject *receiver, const char *met
 
     if(timer.isActive()) {
         timer.stop();
-        // ui->logTextEdit->append("Get Response ... ");
     } else {
-
+        emit apigeeHttpError("TIME out Error ..."+getApigURL+" is not responding");
         // ui->logTextEdit->append("TIME out Error ..."+ui->urlLineEdit->text()+" is not responding");
         m_reply->abort();
 
     }
+
+}
+
+void ApigeeEdge::onResultGetApis(QNetworkReply* reply)
+{
+
+    if (reply->error()) {
+
+        QString reason = reply->attribute( QNetworkRequest::HttpReasonPhraseAttribute ).toString();
+
+        emit apigeeHttpError("Http Error: "+reason);
+
+        return;
+    }
+
+    /* parse Json */
+    QStringList propertyNames;
+    QStringList propertyKeys;
+    QString strReply = (QString) reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+
+    emit resultGetApi (jsonResponse);
+
 }

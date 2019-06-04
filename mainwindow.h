@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtNetwork>
 #include "setupconnection.h"
+#include "apigeeedge.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,18 +20,14 @@ public:
 
 public slots:
     void on_goButton_clicked();
-    void onResult(QNetworkReply* reply);
+    void getApiSlot(QJsonDocument document);
     void newSettings();
 
 private:
     Ui::MainWindow *ui;
 
     SetupConnection *m_qSetupDialog;
-
-    QString m_sUsername;
-    QString m_sPassword;
-    QString m_sApigeeUrl;
-
+    ApigeeEdge *apigeeEdge;
 
 protected:
     void showEvent(QShowEvent *ev);
